@@ -6,13 +6,15 @@ import datetime
 from openai import OpenAI
 import json
 
+
 class FineTuningCLI:
 
     # Set up global vars
     def __init__(self):
-        self.client = OpenAI()
-        self.api_key = "" # INSERT API KEY HERE
-        self.client.api_key = self.api_key
+        self.api_key = (
+            "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"  # INSERT API KEY HERE
+        )
+        self.client = OpenAI(api_key=self.api_key)
         self.finetuning_data_dir = "./data"
 
     # Upload an existing file in data directory
@@ -25,7 +27,9 @@ class FineTuningCLI:
         if 0 <= file_index < len(files):
             selected_file = files[file_index]
             full_path = os.path.join(self.finetuning_data_dir, selected_file)
-            confirm = input(f"Are you sure you want to upload {selected_file}? (yes/no): ")
+            confirm = input(
+                f"Are you sure you want to upload {selected_file}? (yes/no): "
+            )
             if confirm.lower() == "yes":
                 file = self.client.files.create(
                     file=open(full_path, "rb"),
@@ -58,7 +62,7 @@ class FineTuningCLI:
 
     # Fine tune model by choosing from uploaded files and existing models
     def fine_tune_model(self):
-        print("Starting a fine-tuning job.")
+        print("\nFiles available to fine-tune from:")
         files = self.client.files.list()
         if not files.data:
             print("No files available for fine-tuning.")
@@ -67,12 +71,49 @@ class FineTuningCLI:
         for idx, file in enumerate(files.data):
             print(f"{idx+1}: {file.filename} (ID: {file.id})")
 
-        file_index = int(input("Select a file to fine-tune (number): ")) - 1
+        file_index = int(input("\nSelect a file to fine-tune (number): ")) - 1
         if 0 <= file_index < len(files.data):
             selected_file = files.data[file_index]
-            confirm = input(f"Are you sure you want to fine-tune using {selected_file.filename}? (yes/no): ")
+            custom = input(
+                f"\nType '1' to fine-tune an existing model of yours or '2' to fine-tune the base model gpt-3.5-turbo: "
+            )
+
+            model = "not selected"
+
+            if custom == 2:
+                model = "gpt-3.5-turbo"
+            else:
+                print("\nModels available for fine-tuning:")
+                jobs = self.client.fine_tuning.jobs.list()
+                completed_jobs = [job for job in jobs.data if job.status == "succeeded"]
+                if not completed_jobs:
+                    print("No completed fine-tuning jobs available.")
+                    return
+
+                for idx, job in enumerate(completed_jobs):
+                    completion_date = datetime.datetime.fromtimestamp(job.created_at).strftime(
+                        "%Y-%m-%d %H:%M:%S"
+                    )
+                    tokens_trained = job.trained_tokens if job.trained_tokens else "N/A"
+                    print("-" * 50)
+                    print(
+                        f"{idx+1}: Model: {job.fine_tuned_model}\n   Completion Date: {completion_date}\n   Tokens Trained: {tokens_trained}"
+                    )
+
+                job_index = int(input("\nSelect a model to chat with (number): ")) - 1
+                if 0 <= job_index < len(completed_jobs):
+                    selected_job = completed_jobs[job_index]
+                    model = selected_job.fine_tuned_model
+
+            if(model == "not selected"):
+                return
+
+            confirm = input(
+                f"\nAre you sure you want to fine-tune the model {model} using {selected_file.filename}? (yes/no): "
+            )
+
             if confirm.lower() == "yes":
-                base_model = "gpt-3.5-turbo"
+                base_model = model
                 response = self.client.fine_tuning.jobs.create(
                     training_file=selected_file.id,
                     model=base_model,
@@ -93,10 +134,14 @@ class FineTuningCLI:
             return
 
         for idx, job in enumerate(completed_jobs):
-            completion_date = datetime.datetime.fromtimestamp(job.created_at).strftime('%Y-%m-%d %H:%M:%S')
+            completion_date = datetime.datetime.fromtimestamp(job.created_at).strftime(
+                "%Y-%m-%d %H:%M:%S"
+            )
             tokens_trained = job.trained_tokens if job.trained_tokens else "N/A"
-            print("-" *50)
-            print(f"{idx+1}: Model: {job.fine_tuned_model}\n   Completion Date: {completion_date}\n   Tokens Trained: {tokens_trained}")
+            print("-" * 50)
+            print(
+                f"{idx+1}: Model: {job.fine_tuned_model}\n   Completion Date: {completion_date}\n   Tokens Trained: {tokens_trained}"
+            )
 
         job_index = int(input("\nSelect a model to chat with (number): ")) - 1
         if 0 <= job_index < len(completed_jobs):
@@ -111,7 +156,7 @@ class FineTuningCLI:
             ]
 
             while True:
-                print("\n" + "-"*70)
+                print("\n" + "-" * 70)
                 print("User prompt (type 'q' and press Enter to exit): ", end="")
 
                 prompt = input()
@@ -140,10 +185,12 @@ class FineTuningCLI:
             print("Exiting conversation.")
         else:
             print("Invalid selection.")
-    
+
     # CLI to add a sample conversation to the training data
     def add_training_data(self):
-        filename = input("\nEnter the name of the training file (without the .jsonl extension): ").strip()
+        filename = input(
+            "\nEnter the name of the training file (without the .jsonl extension): "
+        ).strip()
         full_path = os.path.join(self.finetuning_data_dir, f"{filename}.jsonl")
 
         if os.path.exists(full_path):
@@ -152,25 +199,28 @@ class FineTuningCLI:
             print(f"Creating new file: {filename}.jsonl")
 
         user_prompt = input("\nEnter the sample user prompt: ").strip()
-        assistant_response = input("\nEnter the corresponding assistant response: ").strip()
+        assistant_response = input(
+            "\nEnter the corresponding assistant response: "
+        ).strip()
 
         training_data_entry = {
             "messages": [
-                {"role": "system", "content": "This assistant will help you with your modeling software."},
+                {
+                    "role": "system",
+                    "content": "This assistant will help you with your modeling software.",
+                },
                 {"role": "user", "content": user_prompt},
-                {"role": "assistant", "content": assistant_response}
+                {"role": "assistant", "content": assistant_response},
             ]
         }
 
-        with open(full_path, 'a') as file:
+        with open(full_path, "a") as file:
             file.write(f"{json.dumps(training_data_entry)}\n")
 
         print("\nTraining data added successfully.")
 
         print("\nAdded JSON object:")
-        print(json.dumps(training_data_entry, indent=4))  
-
-
+        print(json.dumps(training_data_entry, indent=4))
 
     # Allows user to choose action
     def run(self):
@@ -180,8 +230,8 @@ class FineTuningCLI:
             print("2. View your existing fine-tuning jobs on OpenAI")
             print("3. Start a fine-tuning job on OpenAI")
             print("4. Chat with one of your fine-tuned models")
-            print("5. Add sample conversation to training data") 
-            print("6. Exit program") 
+            print("5. Add sample conversation to training data")
+            print("6. Exit program")
             choice = input("\nSelect an option by entering the number: ")
 
             if choice == "1":
@@ -193,12 +243,13 @@ class FineTuningCLI:
             elif choice == "4":
                 self.converse_with_model()
             elif choice == "5":
-                self.add_training_data()  
+                self.add_training_data()
             elif choice == "6":
                 print("Exiting the Fine Tuning CLI.")
                 break
             else:
                 print("Invalid option. Please try again.")
+
 
 # Main
 if __name__ == "__main__":

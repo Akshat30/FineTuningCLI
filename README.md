@@ -11,10 +11,25 @@ This program allows a user to interact with the fine tuning feature from OpenAI'
 2. Open repository folder in Terminal or Command Prompt
 3. Ensure that Python3 is installed
 4. On line 14, where it says `self.api_key = "" # INSERT API KEY HERE`, insert your OpenAI API key within the quotes.
-5. Run `pip install -r requirements.txt`
+5. Run `pip3 install openai`
 6. Run `python3 cli.py`
 
 NOTE: Never push any code with the api key in it, as Open AI will immediately disable the api key (due to the repository being public)
+
+## Troubleshooting
+
+If, after following the instructions, you get the following error:
+```
+ from openai import OpenAI
+ModuleNotFoundError: No module named 'openai'
+```
+
+Run these commands in the project directory:
+
+1. `pip3 uninstall openai`
+2. `python3 --version`
+3. `pip{INSERT_YOUR_PYTHON_VERSION_HERE} install openai` for example: `pip3.9.7 install openai`
+4. `python3 cli.py`
 
 ## Features
 The User is prompted with this when the program runs:
