@@ -86,9 +86,9 @@ class FineTuningCLI:
 
             model = "not selected"
 
-            if custom == 2:
+            if custom == "2":
                 model = "gpt-3.5-turbo"
-            else:
+            elif custom == "1":
                 print("\nModels available for fine-tuning:")
                 jobs = self.client.fine_tuning.jobs.list()
                 completed_jobs = [job for job in jobs.data if job.status == "succeeded"]
@@ -112,6 +112,7 @@ class FineTuningCLI:
                     model = selected_job.fine_tuned_model
 
             if model == "not selected":
+                print("\nInvalid input.")
                 return
 
             confirm = input(
