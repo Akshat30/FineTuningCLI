@@ -4,7 +4,8 @@ Authored by Triton Consulting Group
 
 This program allows a user to interact with the fine tuning feature from OpenAI's API. 
 
-> Consider reading [OpenAI's documentation](https://platform.openai.com/docs/guides/fine-tuning/common-use-cases) on Fine Tuning before proceeding. 
+> Consider reading [OpenAI's documentation](https://platform.openai.com/docs/guides/fine-tuning/common-use-cases) on Fine Tuning before proceeding.
+> Fine tuning UI can be found [here](https://platform.openai.com/finetune/).
 
 ## Set Up and Run
 1. Clone or download repository
