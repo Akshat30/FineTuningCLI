@@ -15,6 +15,7 @@ This program allows a user to interact with the fine tuning feature from OpenAI'
 5. Run `pip install python-dotenv` 
 6. Create a file called .env, type `API_KEY=` and enter your OpenAI API Key next to `API_KEY=`. do not include quotations. 
 
+Generate an API Key [here](https://platform.openai.com/api-keys). Ensure that you have loaded a balance into your associated account.
 What the .env file should look like:
 ```
 API_KEY=sk-aiwufhawiuhfaliuawlifhikhjkawfawefo
