@@ -1,6 +1,6 @@
 # FineTuningCLI
 
-Authored by Triton Consulting Group
+Authored by Triton Consulting Group for RobustPhysics
 
 This program allows a user to interact with the fine tuning feature from OpenAI's API. 
 
