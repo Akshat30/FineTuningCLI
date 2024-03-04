@@ -14,7 +14,6 @@ class FineTuningCLI:
     def __init__(self):
         load_dotenv()
         self.api_key = os.getenv("API_KEY")  # INSERT API KEY IN THE .env
-        print(self.api_key)
         self.client = OpenAI(api_key=self.api_key)
         self.finetuning_data_dir = "./data"
 
