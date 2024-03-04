@@ -188,9 +188,7 @@ class FineTuningCLI:
 
     # CLI to add a sample conversation to the training data
     def add_training_data(self):
-        filename = input(
-            "\nEnter the name of the training file (without the .jsonl extension): "
-        ).strip()
+        filename = input("\nEnter the name of the training file (without the .jsonl extension): ").strip()
         full_path = os.path.join(self.finetuning_data_dir, f"{filename}.jsonl")
 
         if os.path.exists(full_path):
@@ -198,29 +196,36 @@ class FineTuningCLI:
         else:
             print(f"Creating new file: {filename}.jsonl")
 
-        user_prompt = input("\nEnter the sample user prompt: ").strip()
-        assistant_response = input(
-            "\nEnter the corresponding assistant response: "
-        ).strip()
+        print("\nType 'exit' at any prompt to stop adding examples and return to the main menu.")
 
-        training_data_entry = {
-            "messages": [
-                {
-                    "role": "system",
-                    "content": "This assistant will help you with your modeling software.",
-                },
-                {"role": "user", "content": user_prompt},
-                {"role": "assistant", "content": assistant_response},
-            ]
-        }
+        while True:
+            user_prompt = input("\nEnter the sample user prompt: ").strip()
+            if user_prompt.lower() == 'exit':
+                break
 
-        with open(full_path, "a") as file:
-            file.write(f"{json.dumps(training_data_entry)}\n")
+            assistant_response = input("\nEnter the corresponding assistant response: ").strip()
+            if assistant_response.lower() == 'exit':
+                break
 
-        print("\nTraining data added successfully.")
+            training_data_entry = {
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "This assistant will help you with your modeling software.",
+                    },
+                    {"role": "user", "content": user_prompt},
+                    {"role": "assistant", "content": assistant_response},
+                ]
+            }
 
-        print("\nAdded JSON object:")
-        print(json.dumps(training_data_entry, indent=4))
+            with open(full_path, "a") as file:
+                file.write(f"{json.dumps(training_data_entry)}\n")
+
+            print("\nTraining data added successfully.")
+            print("\nAdded JSON object:")
+            print(json.dumps(training_data_entry, indent=4))
+
+        print("Returning to the main menu.") 
 
     # Allows user to choose action
     def run(self):
