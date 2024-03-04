@@ -11,9 +11,11 @@ This program allows a user to interact with the fine tuning feature from OpenAI'
 1. Clone or download repository
 2. Open repository folder in Terminal or Command Prompt
 3. Ensure that Python3 is installed
-4. On line 14, where it says `self.api_key = "" # INSERT API KEY HERE`, insert your OpenAI API key within the quotes.
-5. Run `pip3 install openai`
-6. Run `python3 cli.py`
+4. Run `pip install openai` 
+5. Run `pip install python-dotenv` 
+6. In the .env file, enter your OpenAI API Key next to `API_KEY=` and do not include quotations. 
+> For example `API_KEY=sk-aiwufhawiuhfaliuawlifhikhjkawfawefo`
+7. Run `python3 cli.py`
 
 NOTE: Never push any code with the api key in it, as Open AI will immediately disable the api key (due to the repository being public)
 

@@ -5,17 +5,23 @@ import os
 import datetime
 from openai import OpenAI
 import json
+from dotenv import load_dotenv
 
 
 class FineTuningCLI:
 
-    # Set up global vars
+    # Set up vars
     def __init__(self):
-        self.api_key = (
-            "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"  # INSERT API KEY HERE
-        )
+        load_dotenv()
+        self.api_key = os.getenv("API_KEY")  # INSERT API KEY IN THE .env
+        print(self.api_key)
         self.client = OpenAI(api_key=self.api_key)
         self.finetuning_data_dir = "./data"
+
+        # text decoration
+        self.BOLD = "\033[1m"
+        self.UNDERLINE = "\033[4m"
+        self.RESET = "\033[0m"
 
     # Upload an existing file in data directory
     def upload_file(self):
@@ -91,9 +97,9 @@ class FineTuningCLI:
                     return
 
                 for idx, job in enumerate(completed_jobs):
-                    completion_date = datetime.datetime.fromtimestamp(job.created_at).strftime(
-                        "%Y-%m-%d %H:%M:%S"
-                    )
+                    completion_date = datetime.datetime.fromtimestamp(
+                        job.created_at
+                    ).strftime("%Y-%m-%d %H:%M:%S")
                     tokens_trained = job.trained_tokens if job.trained_tokens else "N/A"
                     print("-" * 50)
                     print(
@@ -105,7 +111,7 @@ class FineTuningCLI:
                     selected_job = completed_jobs[job_index]
                     model = selected_job.fine_tuned_model
 
-            if(model == "not selected"):
+            if model == "not selected":
                 return
 
             confirm = input(
@@ -157,11 +163,14 @@ class FineTuningCLI:
 
             while True:
                 print("\n" + "-" * 70)
-                print("User prompt (type 'q' and press Enter to exit): ", end="")
+                print(
+                    f"{self.UNDERLINE}User prompt{self.RESET} (type 'exit' and press Enter to exit): ",
+                    end="",
+                )
 
                 prompt = input()
 
-                if prompt == "q":
+                if prompt.lower() == "exit":
                     break
 
                 convo.append({"role": "user", "content": prompt})
@@ -173,7 +182,7 @@ class FineTuningCLI:
 
                 print("")
                 for choice in response.choices:
-                    print("Model response: ", end="")
+                    print(f"{self.UNDERLINE}Model response:{self.RESET} ", end="")
                     print(choice.message.content)
                     convo.append(
                         {
@@ -188,7 +197,9 @@ class FineTuningCLI:
 
     # CLI to add a sample conversation to the training data
     def add_training_data(self):
-        filename = input("\nEnter the name of the training file (without the .jsonl extension): ").strip()
+        filename = input(
+            "\nEnter the name of the training file (without the .jsonl extension): "
+        ).strip()
         full_path = os.path.join(self.finetuning_data_dir, f"{filename}.jsonl")
 
         if os.path.exists(full_path):
@@ -196,15 +207,19 @@ class FineTuningCLI:
         else:
             print(f"Creating new file: {filename}.jsonl")
 
-        print("\nType 'exit' at any prompt to stop adding examples and return to the main menu.")
+        print(
+            "\nType 'exit' at any prompt to stop adding examples and return to the main menu."
+        )
 
         while True:
             user_prompt = input("\nEnter the sample user prompt: ").strip()
-            if user_prompt.lower() == 'exit':
+            if user_prompt.lower() == "exit":
                 break
 
-            assistant_response = input("\nEnter the corresponding assistant response: ").strip()
-            if assistant_response.lower() == 'exit':
+            assistant_response = input(
+                "\nEnter the corresponding assistant response: "
+            ).strip()
+            if assistant_response.lower() == "exit":
                 break
 
             training_data_entry = {
@@ -225,7 +240,7 @@ class FineTuningCLI:
             print("\nAdded JSON object:")
             print(json.dumps(training_data_entry, indent=4))
 
-        print("Returning to the main menu.") 
+        print("Returning to the main menu.")
 
     # Allows user to choose action
     def run(self):
