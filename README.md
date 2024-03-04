@@ -14,6 +14,8 @@ This program allows a user to interact with the fine tuning feature from OpenAI'
 5. Run `pip install -r requirements.txt`
 6. Run `python3 cli.py`
 
+NOTE: Never push any code with the api key in it, as Open AI will immediately disable the api key (due to the repository being public)
+
 ## Features
 The User is prompted with this when the program runs:
 ```
